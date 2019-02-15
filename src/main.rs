@@ -10,10 +10,12 @@ fn main() {
         process::exit(1);
     });
 
-    mapping::process_input(&config.file).unwrap_or_else(|err| {
+    let delay = mapping::run(&config.file).unwrap_or_else(|err| {
         println!("Problem processing input {}", err);
         process::exit(1);
     });
+
+    println!("{}", delay);
 }
 
 

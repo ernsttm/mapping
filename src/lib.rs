@@ -59,7 +59,7 @@ fn read_expected_line(reader: &mut BufReader<&File>) -> Result<String, Box<dyn E
     Ok(line)
 }
 
-pub fn process_input(filename: &String) -> Result<(), Box<dyn Error>> {
+pub fn run(filename: &str) -> Result<u32, Box<dyn Error>> {
     let file = File::open(filename)?;
     let mut reader = BufReader::new(&file);
 
@@ -69,15 +69,9 @@ pub fn process_input(filename: &String) -> Result<(), Box<dyn Error>> {
     let  (input_wires, mut nodes) = process_dag(&mut reader)?;
 
     let dag = DAG::new(input_wires, &mut nodes);
-    println!("DAG: {:?}", dag);
-
     let trees = dag.partition();
-    println!("Tree: {:?}", trees);
-
     let walker = LaydownWalker::new(&gates, &cells, &trees, &dag);
-    println!("{}", walker.find_min_delay());
-
-    Ok(())
+    Ok(walker.find_min_delay())
 }
 
 fn process_gates(reader: &mut BufReader<&File>) -> Result<Vec<Gate>, Box<dyn Error>> {
@@ -175,4 +169,34 @@ fn process_dag(reader: &mut BufReader<&File>) -> Result<(u32, Vec<InputNode>), B
     }
 
     Ok((inputs, input_nodes))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test1() {
+        let delay = run("test1").unwrap();
+        assert_eq!(11, delay);
+    }
+
+    #[test]
+    fn test2() {
+        let delay = run("test2").unwrap();
+        assert_eq!(30, delay);
+    }
+
+    #[test]
+    fn test3() {
+        let delay = run("test3").unwrap();
+        assert_eq!(19, delay);
+    }
+
+    #[test]
+    #[ignore]
+    fn long() {
+        let delay = run("test4").unwrap();
+        assert_eq!(93, delay);
+    }
 }
